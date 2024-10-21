@@ -1,0 +1,59 @@
+ex\springsecurity_1805\Repositories\TrailerRepository.class
+<<<<<<< HEAD
+ex\springsecurity_1805\Repositories\BackImageRepository.class
+=======
+>>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
+ex\springsecurity_1805\Controllers\ControllerForPlaylists.class
+ex\springsecurity_1805\Models\Trailer.class
+ex\springsecurity_1805\Repositories\ImageRepository.class
+ex\springsecurity_1805\Models\Playlist.class
+ex\springsecurity_1805\services\ServiceApp.class
+<<<<<<< HEAD
+ex\springsecurity_1805\Config\CorsConfig.class
+ex\springsecurity_1805\Config\SameSiteCookieFilter.class
+=======
+>>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
+ex\springsecurity_1805\Models\Views.class
+ex\springsecurity_1805\services\ServiceHelperFunctions$KeyboardLayoutConverter.class
+ex\springsecurity_1805\Controllers\RestController.class
+ex\springsecurity_1805\Models\Application.class
+ex\springsecurity_1805\Repositories\AudioRepository.class
+ex\springsecurity_1805\Models\Socials.class
+ex\springsecurity_1805\Models\Views$AudioImage.class
+ex\springsecurity_1805\Controllers\RestControllerForAudio.class
+ex\springsecurity_1805\Models\Application$ApplicationBuilder.class
+ex\springsecurity_1805\Models\BackgroundImage.class
+ex\springsecurity_1805\Models\Views$Public.class
+ex\springsecurity_1805\services\AlgorithmsOfRecomendations.class
+ex\springsecurity_1805\Config\CustomOidcUserService.class
+ex\springsecurity_1805\SpringSecurity1805Application.class
+<<<<<<< HEAD
+ex\springsecurity_1805\Config\CustomCorsFilter.class
+ex\springsecurity_1805\Models\AudioShort.class
+=======
+>>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
+ex\springsecurity_1805\Models\Usermain.class
+ex\springsecurity_1805\services\MyUserDetailsService.class
+ex\springsecurity_1805\Config\Configuration1.class
+ex\springsecurity_1805\services\UserDEtailsService.class
+ex\springsecurity_1805\Controllers\ControllerF.class
+ex\springsecurity_1805\Models\Img.class
+ex\springsecurity_1805\Controllers\RestControllerForUserCRUD.class
+ex\springsecurity_1805\Models\CustomIdGenerator.class
+ex\springsecurity_1805\Models\updateModel.class
+ex\springsecurity_1805\Controllers\RestControllerForImg.class
+ex\springsecurity_1805\Models\Audio.class
+ex\springsecurity_1805\Models\Views$Internal.class
+ex\springsecurity_1805\services\ServiceForPlaylists.class
+ex\springsecurity_1805\Repositories\PlaylistRepository.class
+ex\springsecurity_1805\Repositories\UserRepository.class
+ex\springsecurity_1805\RedisRepositories\AudioRedisRepository.class
+ex\springsecurity_1805\services\RedisService.class
+<<<<<<< HEAD
+=======
+ex\springsecurity_1805\Config\Configuration1$1.class
+>>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
+ex\springsecurity_1805\Models\Data.class
+ex\springsecurity_1805\Config\RedisConfig.class
+ex\springsecurity_1805\services\ServiceHelperFunctions.class
+ex\springsecurity_1805\services\AlgorithmsOfRecomendations$ContentBasedRecommender.class

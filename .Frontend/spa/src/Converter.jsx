@@ -5,7 +5,8 @@ import { TypeContext } from "./Context";
 export const Converter = () => {
     const navigate = useNavigate();
     const [file, setFile] = useState(null);
-    const { type, setType } = useContext(TypeContext); // use type and setType from context
+    const { type, setType } = useContext(TypeContext);
+    const [isLoading,setIsLoading] = useState(false)// use type and setType from context
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -14,9 +15,8 @@ export const Converter = () => {
         formData.append('file', file);
 
         try {
-            await fetch(`http://localhost:8081/upload`, {
+            await fetch(`http://localhost:8081/upload/docxtopdf`, {
                 method: 'POST',
-                credentials: 'include',
                 body: formData
             });
 
@@ -36,8 +36,10 @@ export const Converter = () => {
     }, [type, setType]);
 
     return (
+        <div>
+            {isLoading &&
         <div className="form-container">
-            <h1>Загрузить трек</h1>
+            <h1>Загрузить файл</h1>
             <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
                 <div className="file-input-container">
                     <label className="file-input-label" htmlFor="file">Выберите {type}</label>
@@ -54,6 +56,10 @@ export const Converter = () => {
             </form>
 
             <button className="Back" onClick={() => navigate('/')}>Назад</button>
+        </div>
+
+
+            }
         </div>
     );
 };

@@ -27,8 +27,8 @@ const App = () => {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/update" element={<Update />} />
                         <Route path ="/upload" element={<Upload/>}/>
-                        <Route path={"/converter"} element={<Converter/>}/>
                     </Route>
+                    <Route path={"/converter"} element={<Converter/>}/>
                     <Route path="/reg" element={<UserForm />} />
                 </Routes>
             </Router>

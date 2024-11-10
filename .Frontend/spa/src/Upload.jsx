@@ -29,14 +29,11 @@ export const Upload = () => {
 
     return (
         <div className="form-container">
-            <h1>Загрузить трек</h1>
-<<<<<<<< HEAD:src/Upload.jsx
-            {/* Form element wraps both file input and submit button */}
-            <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
-========
+            <h1>Загрузить файл</h1>
+]
             <form id="userForm" onSubmit={handleSubmit} encType="application/octet-stream">
 
->>>>>>>> 823b6f2590326050b632e84f50e474cb90fda94f:Front/AudioUpload.jsx
+
                 <div className="file-input-container">
                     <label className="file-input-label" htmlFor="file">Выберите музон</label>
                     <input

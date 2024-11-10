@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: UsersInSystem
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: IU8_l1ver
+    ports:
+      - "5432:5432"  # Проброс порта на хост
+    restart: always
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"  # Проброс порта на хост
+    restart: always
+  app-3:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+
+  app-1:
+<<<<<<< HEAD
+    image: mainconstructor/spring_sec:latest
+=======
+    image: sping_sec
+>>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/UsersInSystem
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: IU8_l1ver
+    ports:
+      - "8080:8080"  # Проброс порта на хост
+    depends_on:
+      - db
+    restart: always
+
+  app-2:
+    image: mainconstructor/spa:latest
+    ports:
+      - "80:3000"  # Проброс порта 80 из контейнера на порт 3000 хоста
+    depends_on:
+      - app-1
+    restart: always
+
+<<<<<<< HEAD
+=======
+
+
+
+
+  
+>>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625

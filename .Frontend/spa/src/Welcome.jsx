@@ -175,9 +175,6 @@ const Welcome = () => {
             <button className="top-left-button5" onClick={redirectToProfile}>
                 Профиль
             </button>
-            <button className="uploadButton" onClick={() => navigate('/upload')}>
-                Загрузка
-            </button>
 
         </div>
     );

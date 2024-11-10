@@ -6,7 +6,7 @@ export const Converter = () => {
     const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const { type, setType } = useContext(TypeContext);
-    const [isLoading,setIsLoading] = useState(false)// use type and setType from context
+    const [isLoading,setIsLoading] = useState(true) // use type and setType from context
 
     const handleSubmit = async (event) => {
         event.preventDefault();

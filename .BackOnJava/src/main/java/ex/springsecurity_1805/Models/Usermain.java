@@ -51,7 +51,7 @@ public class Usermain {
 
     private Long lastTrack;
     public void addImgToProduct(Img img) {img.setUser(this);}
-    public void addPlaylistToUser(Playlist playlist) {playlist.setUser(this);}
+
 
 
 }

@@ -1,26 +1,19 @@
 package ex.springsecurity_1805.Controllers;
 
 
-
 import com.fasterxml.jackson.annotation.JsonView;
 import ex.springsecurity_1805.Models.*;
+
 import ex.springsecurity_1805.Repositories.UserRepository;
 import ex.springsecurity_1805.services.ServiceApp;
 import ex.springsecurity_1805.services.UserDEtailsService;
-
-<<<<<<< HEAD
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-=======
-import lombok.AllArgsConstructor;
-
->>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
-
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +21,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -35,26 +29,15 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
-<<<<<<< HEAD
-
-=======
-@CrossOrigin(origins="https://localhost:3000",allowCredentials = "true")
->>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
 @org.springframework.web.bind.annotation.RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class RestController {
-<<<<<<< HEAD
     private final  UserRepository rep;
     private final ServiceApp serviceApp;
 
     @Value("${urlFront}")
     String url;
-=======
-    private UserRepository rep;
-    private ServiceApp serviceApp;
-    private TrailerRepository trailerRepository;
->>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
 
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -67,18 +50,6 @@ public class RestController {
         Long id =rep.count();
        return id.toString();
     }
-
-<<<<<<< HEAD
-
-=======
-    @JsonView(Views.Public.class)
-    @GetMapping("/searchOfTrack/{name}")
-    public List<Audio> searchOfTrack(@PathVariable String name){
-      return serviceApp.searchTrackFromBD(name);
-    }
->>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
-
-
 
 
 
@@ -122,13 +93,6 @@ public class RestController {
     }
 
 
-
-<<<<<<< HEAD
-=======
-    }
-    // Проверка на наличие имени в бд при регистрации
-    @CrossOrigin(origins="https://localhost:3000",allowCredentials = "true")
->>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
     @PostMapping("/checking")
     public ResponseEntity<?> checkUserName(@RequestBody Data data) {
         System.out.println(data.getName() + " существует");
@@ -188,30 +152,11 @@ public class RestController {
         rep.findByName(user1.getUsername()).ifPresent(Usermain -> new Usermain().setSocial(socials));
     }
     
-<<<<<<< HEAD
-
 
     @GetMapping("/wel")
     public String sdf(){
         return "foto";
     }
-=======
-    @GetMapping("/trailer")
-    public ResponseEntity<?> getTrailer() {
-        Trailer trailer = trailerRepository.findById(1L).orElse(null);
-        return ResponseEntity.ok()
-                .contentType(MediaType.valueOf("video/mp4"))
-                .body(new InputStreamResource(new ByteArrayInputStream(trailer.getSize())));
-    }
-    @PostMapping("/uploadTrailer")
-    public void uploadTrailer(@RequestParam("file") MultipartFile file) throws IOException {
-        System.out.println("upload was successful");
-        Trailer trailer = new Trailer();
-        trailer.setSize(file.getBytes());
-        trailerRepository.save(trailer);
-    }
-
->>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
 
 
 }

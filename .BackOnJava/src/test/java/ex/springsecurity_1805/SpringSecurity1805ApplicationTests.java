@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.testng.annotations.Test;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SpringSecurity1805Application.class)// Используется для интеграции с JUnit
+@SpringBootTest(classes = ConverterStarter.class)// Используется для интеграции с JUnit
 @ContextConfiguration(classes = Configuration1.class)
 public class SpringSecurity1805ApplicationTests {
 

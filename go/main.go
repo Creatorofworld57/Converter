@@ -10,7 +10,7 @@ import (
 )
 
 func convertToPdf(FilePath, outputPdfPath string) error {
-	libreOfficePath := os.Getenv("LIBREOFFICE_PATH")
+	libreOfficePath := "C:\\Program Files\\LibreOffice\\program\\soffice.exe"
 	if libreOfficePath == "" {
 		return fmt.Errorf("libreOffice path not set in environment variable")
 	}
@@ -130,12 +130,9 @@ func handleFileUploadDocx(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
 	done := make(chan error)
-
 	go func() {
 		defer close(done)
-
 		err := r.ParseMultipartForm(10 << 20) // 10MB
 		if err != nil {
 			done <- fmt.Errorf("File is too big")
@@ -173,38 +170,49 @@ func handleFileUploadDocx(w http.ResponseWriter, r *http.Request) {
 		pdfFileName := handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
 		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
-		err = sendPdfToServer(pdfFilePath)
-		if err != nil {
-			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
-			return
-		}
-
+		// Здесь удаляем DOCX файл
 		if err = os.Remove(docxFilePath); err != nil {
 			done <- fmt.Errorf("Failed to delete DOCX file: %v", err)
 			return
 		}
-		if err = os.Remove(pdfFilePath); err != nil {
-			done <- fmt.Errorf("Failed to delete PDF file: %v", err)
-			return
-		}
 
+		// Возвращаем PDF файл
 		done <- nil
+		w.WriteHeader(http.StatusOK) // Отправляем статус 200 OK
+		fmt.Fprintln(w, pdfFileName) // Отправляем название PDF файла
 	}()
 
 	err := <-done
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
+}
 
-	fmt.Fprintln(w, "File converted and sent successfully")
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Обрабатываем preflight-запрос
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
 	http.HandleFunc("/upload/docxtopdf", handleFileUploadDocx)
 	http.HandleFunc("/upload/jpgtopdf", handleFileUploadJpg)
+
+	// Применяем middleware для всех маршрутов
 	fmt.Println("Server listening on port 8081...")
-	err := http.ListenAndServe(":8081", nil)
+	err := http.ListenAndServe(":8081", corsMiddleware(http.DefaultServeMux))
 	if err != nil {
 		fmt.Printf("Error starting server: %v\n", err)
 		os.Exit(1)

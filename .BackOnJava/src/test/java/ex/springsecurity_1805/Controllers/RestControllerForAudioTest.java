@@ -1,9 +1,7 @@
 package ex.springsecurity_1805.Controllers;
 
-import ex.springsecurity_1805.Models.Audio;
 <<<<<<< HEAD
 =======
-import ex.springsecurity_1805.Repositories.AudioRepository;
 >>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 <<<<<<< HEAD
 =======
-import java.util.List;
 
 >>>>>>> 28f0fe1eeab61e9b089570a81e3064ad1acdb625
 import static org.junit.jupiter.api.Assertions.*;

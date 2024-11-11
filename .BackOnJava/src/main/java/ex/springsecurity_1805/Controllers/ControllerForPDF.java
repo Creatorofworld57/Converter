@@ -40,15 +40,25 @@ public class ControllerForPDF {
     }
 
     @PostMapping("/pdf")
-    public ResponseEntity<String> savePdf(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal UserDetails principal) {
+    public ResponseEntity<String> savePdf(@RequestBody byte[] fileBytes,@RequestParam String filename) {
         try {
-            // Вызываем сервис для сохранения PDF
-            serviceForPdf.savePdf(file, principal);
-            return ResponseEntity.status(HttpStatus.CREATED).body("PDF успешно сохранен");
-        } catch (IOException e) {
+          serviceForPdf.savePdfAnonimus(fileBytes,filename);
+            return ResponseEntity.status(HttpStatus.OK).body("PDF успешно сохранен");
+        } catch (Exception e) {
             // Логгируем и возвращаем ошибку
             // log.error("Ошибка при сохранении PDF", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при сохранении PDF");
         }
     }
+    @GetMapping("/pdf/{name}")
+    public ResponseEntity<?> downloadPdf(@PathVariable String name) {
+    try{
+        return ResponseEntity.status(HttpStatus.OK).body(serviceForPdf.getPdfbyName(name).getBytes());
+        } catch (Exception e) {
+            // Логгируем и возвращаем ошибку
+            // log.error("Ошибка при сохранении PDF", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при сохранении PDF");
+        }
+    }
+
 }

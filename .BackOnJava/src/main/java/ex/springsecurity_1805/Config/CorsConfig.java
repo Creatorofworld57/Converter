@@ -17,7 +17,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // Разрешаем источники (указываем конкретные домены)
-        config.setAllowedOrigins(List.of("https://localhost:3000", "http://130.193.62.14"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://130.193.62.14"));
 
         // Разрешаем заголовки, включая стандартные и кастомные
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-CUSTOM-HEADER"));

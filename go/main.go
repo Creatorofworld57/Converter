@@ -64,11 +64,114 @@ func sendPdfToServer(pdfPath, pdfFileName string) error {
 	return nil
 }
 
+func convertMergePdf(pdfFiles []string, outputPdfPath string) error {
+	pdftkPath := os.Getenv("PDFTK_PATH")
+	if pdftkPath == "" {
+		return fmt.Errorf("PDFTK path not set in environment variable")
+	}
+
+	args := append(pdfFiles, "cat", "output", outputPdfPath)
+
+	cmd := exec.Command(pdftkPath, args...)
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error merging PDFs: %v", err)
+	}
+
+	return nil
+}
+
+func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var outputPdfName string
+	done := make(chan error)
+
+	go func() {
+
+		err := r.ParseMultipartForm(50 << 20) // 50MB
+		if err != nil {
+			done <- fmt.Errorf("Request size is too large")
+			return
+		}
+
+		formFiles := r.MultipartForm.File["files"]
+		if len(formFiles) == 0 {
+			done <- fmt.Errorf("No files were uploaded")
+			return
+		}
+
+		var pdfFilePaths []string
+
+		for _, fileHeader := range formFiles {
+			file, err := fileHeader.Open()
+			if err != nil {
+				done <- fmt.Errorf("Unable to open file: %v", err)
+				return
+			}
+
+			defer file.Close()
+
+			filePath := filepath.Join(".", fileHeader.Filename)
+			dst, err := os.Create(filePath)
+			if err != nil {
+				done <- fmt.Errorf("Unable to save file: %v", err)
+				return
+			}
+
+			if _, err := io.Copy(dst, file); err != nil {
+				done <- fmt.Errorf("Unable to save file: %v", err)
+				return
+			}
+
+			dst.Close()
+
+			pdfFilePaths = append(pdfFilePaths, filePath)
+		}
+
+		outputPdfName = "merged.pdf"
+		outputPdfPath := filepath.Join(".", outputPdfName)
+
+		err = convertMergePdf(pdfFilePaths, outputPdfPath)
+		if err != nil {
+			done <- fmt.Errorf("Failed to merge PDF files: %v", err)
+			return
+		}
+
+		err = sendPdfToServer(outputPdfPath, outputPdfName)
+		if err != nil {
+			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
+			return
+		}
+
+		for _, path := range pdfFilePaths {
+			os.Remove(path)
+		}
+
+		os.Remove(outputPdfPath)
+
+		done <- nil
+	}()
+
+	err := <-done
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "File '%s' converted and sent successfully", outputPdfName)
+}
+
 func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	var pdfFileName string
 	done := make(chan error)
 	go func() {
 		defer close(done)
@@ -107,8 +210,9 @@ func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		pdfFileName := handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))]
+		pdfFileName = handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
 		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
+
 		err = sendPdfToServer(pdfFilePath, pdfFileName)
 		if err != nil {
 			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
@@ -129,8 +233,8 @@ func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK) // Отправляем статус 200 OK
-	fmt.Fprintln(w, "File converted and sent successfully")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "File '%s' converted and sent successfully", pdfFileName)
 }
 
 func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +242,10 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	var pdfFileName string
 	done := make(chan error)
+
 	go func() {
 		defer close(done)
 
@@ -176,7 +283,7 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		pdfFileName := handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
+		pdfFileName = handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
 		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		err = sendPdfToServer(pdfFilePath, pdfFileName)
@@ -201,8 +308,9 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK) // Отправляем статус 200 OK
-	fmt.Fprintln(w, "File converted and sent successfully")
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "File '%s' converted and sent successfully", pdfFileName)
 }
 
 func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
@@ -211,7 +319,7 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var pdfFileName string // Declare pdfFileName outside the goroutine
+	var pdfFileName string
 	done := make(chan error)
 
 	go func() {
@@ -250,8 +358,8 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 			done <- fmt.Errorf("Conversion failed: %v", err)
 			return
 		}
+		fmt.Printf("Saving file to: %s\n", docxFilePath)
 
-		// Set pdfFileName here, accessible outside the goroutine
 		pdfFileName = handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
 		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
@@ -265,6 +373,7 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 			done <- fmt.Errorf("Failed to delete DOCX file: %v", err)
 			return
 		}
+
 		if err = os.Remove(pdfFilePath); err != nil {
 			done <- fmt.Errorf("Failed to delete PDF file: %v", err)
 			return
@@ -273,7 +382,6 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 		done <- nil
 	}()
 
-	// Wait for the goroutine to finish
 	err := <-done
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -304,6 +412,7 @@ func main() {
 	http.HandleFunc("/upload/docxtopdf", handleUploadFileDocxToPdf)
 	http.HandleFunc("/upload/jpgtopdf", handleUploadFileJpgToPdf)
 	http.HandleFunc("/upload/xlstopdf", handleUploadFileXlsToPdf)
+	http.HandleFunc("/upload/pdfmerge", handleUploadPdfMerge)
 
 	fmt.Println("Server listening on port 8081...")
 	err := http.ListenAndServe(":8081", corsMiddleware(http.DefaultServeMux))

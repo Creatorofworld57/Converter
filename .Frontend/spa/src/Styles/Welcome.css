@@ -138,6 +138,27 @@ input {
     /* Тень */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+.titleForConv{
+    position: absolute;
+    top: 200px;
+    left: 100px;
+    font-size: 2rem;
+
+}
+.tittleForTools{
+    position: absolute;
+    top: 500px;
+    left: 100px;
+    font-size: 2rem;
+}
+.tools__containerForTools{
+    display: flex;
+    flex-wrap: wrap; /* Современное свойство, можно не использовать префиксы */
+    width: 1920px;
+    top: 700px;
+    position: absolute;
+    left: 100px
+}
 
 /* Для кросс-браузерной поддержки можно добавить префиксы только там, где это необходимо */
 @supports (-webkit-box-shadow: none) {

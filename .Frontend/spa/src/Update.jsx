@@ -36,7 +36,7 @@ const Update = () => {
         formData.append('json', new Blob([json], { type: 'application/json' }));
 
         try {
-            const response = await fetch('https://localhost:8080/api/user', {
+            const response = await fetch('http://localhost:8080/api/user', {
                 method: 'PATCH',
                 body: formData,
                 credentials: "include"
@@ -54,7 +54,7 @@ const Update = () => {
     };
     const getUser = async () => {
         try {
-            const response = await fetch('https://localhost:8080/api/infoAboutUser', {
+            const response = await fetch('http://localhost:8080/api/infoAboutUser', {
                 method: 'GET',
                 credentials: 'include'
             });

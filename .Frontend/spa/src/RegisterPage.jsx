@@ -25,7 +25,7 @@ const UserForm = () => {
             password: password
         };
         const resp = async()=> {
-            await fetch('https://localhost:8080/api/user', {
+            await fetch('http://localhost:8080/api/user', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'
@@ -45,7 +45,7 @@ const UserForm = () => {
     const checking = async (name) => {
         try {
             console.log(name)
-            const response = await fetch('https://localhost:8080/api/checking', {
+            const response = await fetch('http://localhost:8080/api/checking', {
                 method: 'POST',
                 body: JSON.stringify({ name }),
                 headers: {

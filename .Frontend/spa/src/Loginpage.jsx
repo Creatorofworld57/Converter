@@ -20,7 +20,7 @@ const Loginpage = () => {
         Назад
       </button>
 
-      <form action="https://localhost:8080/perform_login" method="post" content="application/x-www-form-urlencoded">
+      <form action="http://localhost:8080/perform_login" method="post" content="application/x-www-form-urlencoded">
           <div className="naming">
               <img
                   src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
@@ -44,7 +44,7 @@ const Loginpage = () => {
                   placeholder="Enter your password"
                   required
               />
-              <div className="imgEntry"><a  href="https://localhost:8080/oauth2/authorization/github" target="_blank"
+              <div className="imgEntry"><a  href="http://localhost:8080/oauth2/authorization/github" target="_blank"
                                            rel="noopener noreferrer">
                   Continue with     <FaGithub/>
               </a></div>

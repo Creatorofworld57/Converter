@@ -21,7 +21,7 @@ const Menu = ({active,setActive}) => {
         navigate(url);
     }
     const redirectToLogout = () => {
-        window.location.replace('https://localhost:8080/api/logout');
+        window.location.replace('http://localhost:8080/api/logout');
     };
 
 
@@ -33,7 +33,7 @@ const Menu = ({active,setActive}) => {
     }, []);
     const userInfo = async () => {
         try {
-            const response = await fetch('https://localhost:8080/api/userInfo', {
+            const response = await fetch('http://localhost:8080/api/userInfo', {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -46,7 +46,7 @@ const Menu = ({active,setActive}) => {
 
     const getUser = async () => {
         try {
-            const response = await fetch('https://localhost:8080/api/infoAboutUser', {
+            const response = await fetch('http://localhost:8080/api/infoAboutUser', {
                 method: 'GET',
                 credentials: 'include'
             });
@@ -67,12 +67,12 @@ const Menu = ({active,setActive}) => {
     const redirectToDelete = async () => {
         try {
             if (window.confirm('Вы уверены, что хотите удалить свою учетную запись?')) {
-                const response = await fetch('https://localhost:8080/api/user', {
+                const response = await fetch('http://localhost:8080/api/user', {
                     method: 'DELETE',
                     credentials: 'include'
                 });
                 if (response.ok)
-                    window.location.replace('https://localhost:8080/api/logout');
+                    window.location.replace('http://localhost:8080/api/logout');
             }
         } catch (error) {
             console.error('Error deleting', error);
@@ -90,7 +90,7 @@ const Menu = ({active,setActive}) => {
                 <ul>
                     {user && (
                         <>
-                            <li><img id="myImage" src={`https://localhost:8080/api/images/${userImage}`} alt="Profile"/>
+                            <li><img id="myImage" src={`http://localhost:8080/api/images/${userImage}`} alt="Profile"/>
                             </li>
                             <li>Name: {user.name}</li>
                             <li>Created: {new Date(user.created).toLocaleDateString()}</li>

@@ -1,14 +1,40 @@
 // ContextForAudio.js
 import React, { useState } from 'react';
 
-export const TypeContext = React.createContext();
+export const TypeContext = React.createContext({
+    color: false,
+    type:"",
+    chatId: 0,
+    id: 0,// Установить значение по умолчанию, соответствующее типу string
+    setColorTheme: (color) => {},  // Указываем, что функция принимает аргумент
+    setTypeValue: (type) => {},    // Указываем, что функция принимает аргумент
+    setChatIdValue: (chatId) => {},    // Указываем, что функция принимает аргумент
+    setIdUpdatedValue: (id) => {},    // Указываем, что функция принимает аргумент
+});
 
 const Context = (props) => {
-    const [data, setData] = useState(""); // 'data' is the same as 'type'
+    // Состояния для разных переменных
+    const [color, setColor] = useState(true); // Цвет темы
+    const [type, setType] = useState("pdf"); // ID
+    const [chatId, setChatId] = useState(0); // Задать начальное значение как строку
+    const [idUpdated, setIdUpdated] = useState(0); // Задать начальное значение как строку
 
+    // Функции для обновления состояний
+    const setColorTheme = (color) => setColor(color);
+    const setTypeValue = (updated) => setType(updated);
+    const setChatIdValue = (chatId) => setChatId(chatId);
+    const setIdUpdatedValue = (idUpdated) => setIdUpdated(idUpdated);
+
+    // Объект, который содержит все данные и функции для их обновления
     const info = {
-        type: data, // here, we rename 'data' to 'type'
-        setType: setData, // here, we rename 'setData' to 'setType'
+        color,
+        setColorTheme,
+        type,
+        setTypeValue,
+        chatId,
+        setChatIdValue,
+        idUpdated,
+        setIdUpdatedValue
     };
 
     return (
@@ -17,5 +43,4 @@ const Context = (props) => {
         </TypeContext.Provider>
     );
 };
-
 export default Context;

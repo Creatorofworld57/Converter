@@ -7,7 +7,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 )
+
+func nameFileTime(baseName string) string {
+	timestamp := time.Now().Format("20060102_150405")
+	return fmt.Sprintf("%s_%s", baseName, timestamp)
+}
 
 func convertToPdf(FilePath, outputPdfPath, method string) error {
 	libreOfficePath := os.Getenv("LIBREOFFICE_PATH")
@@ -34,6 +40,38 @@ func convertToPdf(FilePath, outputPdfPath, method string) error {
 			return fmt.Errorf("error converting docx to pdf: %v", err)
 		}
 	}
+	return nil
+}
+
+func convertMergePdf(pdfFiles []string, outputPdfPath string) error {
+	pdftkPath := os.Getenv("PDFTK_PATH")
+	if pdftkPath == "" {
+		return fmt.Errorf("PDFTK path not set in environment variable")
+	}
+
+	args := append(pdfFiles, "cat", "output", outputPdfPath)
+
+	cmd := exec.Command(pdftkPath, args...)
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error merging PDFs: %v", err)
+	}
+
+	return nil
+}
+
+func convertWatermarkPdf(mainPdfPath, watermarkPdfPath, outputPdfPath string) error {
+	pdftkPath := os.Getenv("PDFTK_PATH")
+	if pdftkPath == "" {
+		return fmt.Errorf("pdftk path not set in environment variable")
+	}
+
+	cmd := exec.Command(pdftkPath, mainPdfPath, "background", watermarkPdfPath, "output", outputPdfPath)
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error applying watermark: %v", err)
+	}
+
 	return nil
 }
 
@@ -64,21 +102,109 @@ func sendPdfToServer(pdfPath, pdfFileName string) error {
 	return nil
 }
 
-func convertMergePdf(pdfFiles []string, outputPdfPath string) error {
-	pdftkPath := os.Getenv("PDFTK_PATH")
-	if pdftkPath == "" {
-		return fmt.Errorf("PDFTK path not set in environment variable")
+func handleUploadPdfWatermark(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
-	args := append(pdfFiles, "cat", "output", outputPdfPath)
+	var outputPdfName string
+	done := make(chan error)
 
-	cmd := exec.Command(pdftkPath, args...)
-	err := cmd.Run()
+	go func() {
+		defer close(done)
+
+		err := r.ParseMultipartForm(50 << 20) // 50 MB
+		if err != nil {
+			done <- fmt.Errorf("Request size is too large")
+			return
+		}
+
+		formFiles := r.MultipartForm.File["files"]
+		if len(formFiles) < 2 {
+			done <- fmt.Errorf("At least two files are required: main and watermark")
+			return
+		}
+
+		mainFileHeader := formFiles[0]
+		watermarkFileHeader := formFiles[1]
+
+		mainFilePath := filepath.Join(".", mainFileHeader.Filename)
+		mainFile, err := mainFileHeader.Open()
+		if err != nil {
+			done <- fmt.Errorf("Unable to open main file: %v", err)
+			return
+		}
+		defer mainFile.Close()
+
+		dstMain, err := os.Create(mainFilePath)
+		if err != nil {
+			done <- fmt.Errorf("Unable to save main file: %v", err)
+			return
+		}
+		if _, err := io.Copy(dstMain, mainFile); err != nil {
+			done <- fmt.Errorf("Error saving main file: %v", err)
+			return
+		}
+		dstMain.Close()
+
+		watermarkFilePath := filepath.Join(".", watermarkFileHeader.Filename)
+		watermarkFile, err := watermarkFileHeader.Open()
+		if err != nil {
+			done <- fmt.Errorf("Unable to open watermark file: %v", err)
+			return
+		}
+		defer watermarkFile.Close()
+
+		dstWatermark, err := os.Create(watermarkFilePath)
+		if err != nil {
+			done <- fmt.Errorf("Unable to save watermark file: %v", err)
+			return
+		}
+		if _, err := io.Copy(dstWatermark, watermarkFile); err != nil {
+			done <- fmt.Errorf("Error saving watermark file: %v", err)
+			return
+		}
+		dstWatermark.Close()
+
+		outputPdfName = nameFileTime("watermarked") + ".pdf"
+		outputPdfPath := filepath.Join(".", outputPdfName)
+
+		err = convertWatermarkPdf(mainFilePath, watermarkFilePath, outputPdfPath)
+		if err != nil {
+			done <- fmt.Errorf("Failed to apply watermark: %v", err)
+			return
+		}
+
+		err = sendPdfToServer(outputPdfPath, outputPdfName)
+		if err != nil {
+			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
+			return
+		}
+
+		if err = os.Remove(mainFilePath); err != nil {
+			done <- fmt.Errorf("Failed to delete PDF file: %v", err)
+			return
+		}
+		if err = os.Remove(watermarkFilePath); err != nil {
+			done <- fmt.Errorf("Failed to delete PDF file: %v", err)
+			return
+		}
+		if err = os.Remove(outputPdfPath); err != nil {
+			done <- fmt.Errorf("Failed to delete PDF file: %v", err)
+			return
+		}
+
+		done <- nil
+	}()
+
+	err := <-done
 	if err != nil {
-		return fmt.Errorf("error merging PDFs: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-
-	return nil
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "File '%s' created successfully", outputPdfName)
 }
 
 func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
@@ -132,7 +258,7 @@ func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 			pdfFilePaths = append(pdfFilePaths, filePath)
 		}
 
-		outputPdfName = "merged.pdf"
+		outputPdfName = nameFileTime("merged") + ".pdf"
 		outputPdfPath := filepath.Join(".", outputPdfName)
 
 		err = convertMergePdf(pdfFilePaths, outputPdfPath)
@@ -151,7 +277,10 @@ func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 			os.Remove(path)
 		}
 
-		os.Remove(outputPdfPath)
+		if err = os.Remove(outputPdfPath); err != nil {
+			done <- fmt.Errorf("Failed to delete PDF file: %v", err)
+			return
+		}
 
 		done <- nil
 	}()
@@ -189,8 +318,11 @@ func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		xlsFilePath := filepath.Join(".", handler.Filename)
+		newBaseName := nameFileTime(handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))])
+		xlsFilePath := filepath.Join(".", newBaseName+".docx")
 		outputPdfPath := "."
+		pdfFileName = newBaseName + ".pdf"
+		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		dst, err := os.Create(xlsFilePath)
 		if err != nil {
@@ -209,9 +341,6 @@ func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 			done <- fmt.Errorf("Conversion failed: %v", err)
 			return
 		}
-
-		pdfFileName = handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
-		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		err = sendPdfToServer(pdfFilePath, pdfFileName)
 		if err != nil {
@@ -262,8 +391,11 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		jpgFilePath := filepath.Join(".", handler.Filename)
+		newBaseName := nameFileTime(handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))])
+		jpgFilePath := filepath.Join(".", newBaseName+".docx")
 		outputPdfPath := "."
+		pdfFileName = newBaseName + ".pdf"
+		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		dst, err := os.Create(jpgFilePath)
 		if err != nil {
@@ -282,9 +414,6 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 			done <- fmt.Errorf("Conversion failed: %v", err)
 			return
 		}
-
-		pdfFileName = handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
-		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		err = sendPdfToServer(pdfFilePath, pdfFileName)
 		if err != nil {
@@ -338,8 +467,11 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		docxFilePath := filepath.Join(".", handler.Filename)
+		newBaseName := nameFileTime(handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))])
+		docxFilePath := filepath.Join(".", newBaseName+".docx")
 		outputPdfPath := "."
+		pdfFileName = newBaseName + ".pdf"
+		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		dst, err := os.Create(docxFilePath)
 		if err != nil {
@@ -358,10 +490,6 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 			done <- fmt.Errorf("Conversion failed: %v", err)
 			return
 		}
-		fmt.Printf("Saving file to: %s\n", docxFilePath)
-
-		pdfFileName = handler.Filename[:len(handler.Filename)-len(filepath.Ext(handler.Filename))] + ".pdf"
-		pdfFilePath := filepath.Join(outputPdfPath, pdfFileName)
 
 		err = sendPdfToServer(pdfFilePath, pdfFileName)
 		if err != nil {
@@ -413,6 +541,7 @@ func main() {
 	http.HandleFunc("/upload/jpgtopdf", handleUploadFileJpgToPdf)
 	http.HandleFunc("/upload/xlstopdf", handleUploadFileXlsToPdf)
 	http.HandleFunc("/upload/pdfmerge", handleUploadPdfMerge)
+	http.HandleFunc("/upload/watermarkpdf", handleUploadPdfWatermark)
 
 	fmt.Println("Server listening on port 8081...")
 	err := http.ListenAndServe(":8081", corsMiddleware(http.DefaultServeMux))

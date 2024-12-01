@@ -10,7 +10,7 @@ const Menu = ({active,setActive}) => {
     const [userImage, setUserImage] = useState('');
     const [isChecked, setIsChecked] = useState(false);
     const navigate=useNavigate()
-
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     const toggleToolbar = () => {
         setIsOpen(!isOpen);

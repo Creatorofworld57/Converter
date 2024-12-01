@@ -1,0 +1,107 @@
+
+
+.scatteringPlaylist {
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    left:90%; /* Элемент будет справа */
+    top: 50%;
+    transform: translate(50%, -50%); /* Смещение элемента на 50% вправо и по вертикали */
+    background: url(https://zornet.ru/ABVUN/Aba/detunis/supasnab/heart.png) no-repeat 0 0;
+    cursor: pointer;
+    animation: fave-heart 1s steps(28);
+    z-index: 0; /* На заднем плане */
+}
+
+.scatteringPlaylist.active {
+    background-position: -2800px 0;
+    transition: background 1s steps(28);
+}
+.tittlePlaylist{
+    position: absolute;
+    top:10%;
+    left:5%;
+    font-size: 5rem;
+    color: #f5f5f5;
+}
+
+
+/* Убедитесь, что текст находится на переднем плане */
+.track-item1 img,
+.track-item1 span {
+    position: relative; /* Элементы на переднем плане */
+    z-index: 1; /* Передний план */
+}
+.item{
+    position: relative; /* Устанавливаем контейнер в относительное положение */
+    display: flex;
+    align-items: center;
+
+}
+.menu-items{
+    position: absolute;
+    width: 50%;
+    min-height: 30%;
+    overflow: hidden;
+    background-color: black;
+    color: white;
+    margin-top: 10px;
+    z-index: 10; /* Передний план для меню */
+    left:1%;
+    top:20%;
+    display:grid;
+    padding-bottom: 120px;
+}
+.menu-items.light{
+    background-color:lightgrey;
+    color: black;
+}
+.item:hover{
+
+}
+.track-image-playlist{
+    width: 60px;
+    height: 60px;
+    position: relative;
+}
+.playlist-container {
+    display: grid;
+    flex-direction: column;
+    position: relative;
+    left:1%;
+
+}
+
+.name-playlist {
+    font-size: 1rem;
+    color: #f5f5f5;
+    position: relative;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+    left:2%;
+}
+.name-playlist.light{
+    color: black;
+}
+.name-playlist:hover{
+    color: papayawhip;
+}
+
+.author-playlist {
+    position: relative;
+    left: 2%;
+    font-size: 1.1rem; /* Чуть больше, чем titl */
+    color: darkgrey;
+    letter-spacing: 0.5px;
+    margin-top: 3px; /* Расстояние между titl и authorName */
+}
+.author-playlist.light{
+    color: #2e2e2e;
+}
+
+
+
+
+
+
+

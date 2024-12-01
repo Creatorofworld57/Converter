@@ -60,26 +60,7 @@ input {
     margin-bottom: 20px;
 
 }
-.file-input-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    font-size: 16px;
-    background-color: #000;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    width: 100%;
-    box-sizing: border-box;
-}
-.file-input-label:hover {
-    background-color: #fff;
-    color: #000;
-    border: 2px solid #000;
-}
+
 .Back {
     position: absolute;
     top: 20px;

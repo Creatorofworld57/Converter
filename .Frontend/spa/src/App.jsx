@@ -8,10 +8,10 @@ import UserForm from './RegisterPage';
 import Update from './Update';
 import Upload from './Upload';
 import "./Styles/App.css"
-import './Styles/Audio.css';
 import PrivateRoute from './PrivateRoutes/PrivateRoute';
 import Converter from "./Converter";
 import Context from "./Context";
+import Pdfs from "./Pdfs";
 
 
 const App = () => {
@@ -27,6 +27,7 @@ const App = () => {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/update" element={<Update />} />
                         <Route path ="/upload" element={<Upload/>}/>
+                        <Route path ="/pdfs" element={<Pdfs/>}/>
                     </Route>
                     <Route path={"/converter"} element={<Converter/>}/>
                     <Route path="/reg" element={<UserForm />} />

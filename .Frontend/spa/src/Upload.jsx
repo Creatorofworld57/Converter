@@ -13,7 +13,7 @@ export const Upload = () => {
         formData.append('file', file);
 
         try {
-            await fetch(`https://localhost:8080/api/pdf`, {
+            await fetch(`${backendUrl}/api/pdf`, {
                 method: 'POST',
                 credentials: 'include',
                 body: formData

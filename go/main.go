@@ -330,7 +330,7 @@ func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		formFiles := r.MultipartForm.File["files[]"]
+		formFiles := r.MultipartForm.File["files"]
 		if len(formFiles) == 0 {
 			done <- fmt.Errorf("No files were uploaded")
 			return

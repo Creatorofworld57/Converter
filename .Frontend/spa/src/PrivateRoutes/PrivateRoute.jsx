@@ -6,7 +6,7 @@ const PrivateRoute = () => {
 
     const auth = async () => {
         try {
-            const response = await fetch('https://localhost:8080/api/authorization', {
+            const response = await fetch('http://localhost:8080/api/authorization', {
                 method: 'GET',
                 credentials: 'include'
             });

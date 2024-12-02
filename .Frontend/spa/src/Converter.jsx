@@ -9,6 +9,9 @@ export const Converter = () => {
     const [tittleType, setTittleType] = useState("файл");
     const [isLoading, setIsLoading] = useState(true);
     const [fileName, setFileName] = useState(null); // Имя итогового файла для скачивания
+    const [isWatermark, setIsWatermark] = useState(false);
+    const [pdfUrls, setPdfUrls] = useState({});// Имя итогового файла для скачивания
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -16,13 +19,24 @@ export const Converter = () => {
         const formData = new FormData();
         if (type === "pdfmerge") {
             // Добавляем все файлы в FormData
-            files.forEach((file, index) => {
-                formData.append(`files`, file); // `files` - ключ для серверного ожидания
+
+            files.forEach(file => {
+                formData.append("files[]", file); // Каждый файл добавляется под "files[]"
             });
 
-        } else {
+        }
+        else if(type==="watermarkpdf"){
+            console.log(files.length)
+            formData.append("files",files[0])
+            formData.append("files",files[1])
+
+        }
+
+
+        else {
             formData.append("file", files[0]); // Берем первый файл для других типов операций
         }
+
 
         try {
             const response = await fetch(`http://localhost:8081/upload/${type}`, {
@@ -56,7 +70,7 @@ export const Converter = () => {
 
     const downloadFile = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/pdf/${fileName}`, {
+            const response = await fetch(`${backendUrl}/api/pdf/${fileName}`, {
                 method: "GET",
             });
 
@@ -85,49 +99,115 @@ export const Converter = () => {
         } else if (type === "pdfmerge") {
             setTittleType("pdf файлы для объединения");
         }
-        else if(type==="pdftojpg")
-            setTypeValue("jpg файл")
+        else if(type==="watermarkpdf"){
+            setIsWatermark(true)
+        }
+        else if(type==="xlstopdf"){
+            setTittleType("xls файл")
+        }
+        else if (type==="jpgtopdf"){
+            setTittleType("jpg файл")
+        }
+
     }, [type]);
 
     return (
         <div>
             {isLoading ? (
-                <div className="form-container">
-                    <h1>Загрузить файл</h1>
-                    <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
-                        <div className="file-input-container">
-                            <label className="file-input-label" htmlFor="file">
-                                Выберите {tittleType}
-                            </label>
-                            <input
-                                type="file"
-                                id="file"
-                                name="file"
-                                onChange={(e) => setFiles([...e.target.files])} // Сохраняем массив файлов
-                                multiple={type === "pdfmerge"} // Разрешаем загрузку нескольких файлов только для объединения
-                                required
-                            />
-                        </div>
+                    <div className="form-container">
+                        <h1>Загрузить файл</h1>
+                        {!isWatermark ? (
+                            <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
+                                <div className="file-input-container">
+                                    <label className="file-input-label" htmlFor="file">
+                                        Выберите {tittleType}
+                                    </label>
+                                    <input
+                                        type="file"
+                                        id="file"
+                                        name="file"
+                                        onChange={(e) => setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
+                                        multiple={type === "pdfmerge"} // Разрешаем загрузку нескольких файлов только для объединения
+                                        required
+                                    />
+                                </div>
 
-                        <button id="but" type="submit">
-                            Отправить
+                                <button id="but" type="submit">
+                                    Отправить
+                                </button>
+                            </form>) : (
+                            <div>
+                                <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
+                                    <div className="file-input-container">
+                                        <label className="file-input-label" htmlFor="file">
+                                            Выберите основной файл
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="name"
+                                            name="name"
+                                            onChange={(e) => setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
+                                            // Разрешаем загрузку нескольких файлов только для объединения
+                                            required
+                                        />
+                                    </div>
+                                    <div className="file-input-container">
+                                        <label className="file-input-label" htmlFor="file">
+                                            Выберите вотермарку
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="watermark"
+                                            name="watermark"
+                                            onChange={(e) => setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
+                                            // Разрешаем загрузку нескольких файлов только для объединения
+                                            required
+                                        />
+                                    </div>
+
+                                    <button id="but" type="submit">
+                                        Отправить
+                                    </button>
+                                </form>
+                            </div>
+
+
+                        )
+                        }
+
+                    </div>
+                )
+                :
+                (
+                    <div>
+                        <button id="but" onClick={downloadFile}>
+                            Скачать
                         </button>
-                    </form>
-
-
-                </div>
-            ) : (
-                <div>
-                    <button id="but" onClick={downloadFile}>
-                        Скачать
-                    </button>
-                </div>
-            )}
+                    </div>
+                )
+            }
+            <div className="pdf-preview-container">
+                {files !==null || files!==undefined ? (
+                    <iframe
+                        src={files[0]}
+                        style={{
+                            width: "100%",
+                            height: "400px",
+                            border: "none",
+                        }}
+                    />
+                ) : (
+                    <div className="error-message">
+                        Загрузка PDF...
+                    </div>
+                )}
+            </div>
             <button className="Back" onClick={() => navigate("/")}>
                 Назад
             </button>
         </div>
-    );
+    )
+        ;
 };
 
 export default Converter;

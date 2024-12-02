@@ -6,7 +6,8 @@ import {FaGithub} from "react-icons/fa";
 
 const Loginpage = () => {
   const navigate = useNavigate();
-
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    const loginUrl =`${backendUrl}/perform_login`
   const redirectTo = (url) => {
     navigate(url);
   };
@@ -20,7 +21,7 @@ const Loginpage = () => {
         Назад
       </button>
 
-      <form action="http://localhost:8080/perform_login" method="post" content="application/x-www-form-urlencoded">
+      <form action={loginUrl} method="post" content="application/x-www-form-urlencoded">
           <div className="naming">
               <img
                   src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"

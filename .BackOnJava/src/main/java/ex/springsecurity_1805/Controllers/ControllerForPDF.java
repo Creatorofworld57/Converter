@@ -25,14 +25,14 @@ public class ControllerForPDF {
 
     private final ServiceForPdf serviceForPdf;
 
-    @GetMapping("/pdf/{id}")
+   /* @GetMapping("/pdf/{id}")
     public ResponseEntity<?> getPdf(@PathVariable Long id) {
         PDF pdf = serviceForPdf.getPdf(id);
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf(pdf.getContentType()))
                 .contentLength(pdf.getSize())
                 .body(new InputStreamResource(new ByteArrayInputStream(pdf.getBytes())));
-    }
+    }*/
 
     @GetMapping("/pdfs")
     public List<Long> pdfs(@AuthenticationPrincipal UserDetails userDetails) {
@@ -57,7 +57,7 @@ public class ControllerForPDF {
         } catch (Exception e) {
             // Логгируем и возвращаем ошибку
             // log.error("Ошибка при сохранении PDF", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при сохранении PDF");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ошибка при скачивании PDF");
         }
     }
 

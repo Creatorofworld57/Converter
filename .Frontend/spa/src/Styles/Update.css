@@ -45,6 +45,8 @@ input {
 .file-input-container input[type="file"]:hover {
     background-color: #fff;
     color: #000;
+    position: absolute;
+    top:400px;
     border: 2px solid #000;
 }
 .file-input-label {
@@ -62,11 +64,7 @@ input {
     width: 100%;
     box-sizing: border-box;
 }
-.file-input-label:hover {
-    background-color: #fff;
-    color: #000;
-    border: 2px solid #000;
-}
+
 .Back {
     position: absolute;
     top: 20px;

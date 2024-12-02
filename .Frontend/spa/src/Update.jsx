@@ -10,6 +10,7 @@ const Update = () => {
     const [git, setGit] = useState('');
     const [file, setFile] = useState(null);  // Start with no file selected
     const navigate = useNavigate();
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
     useEffect(() => {
        getUser();
     }, []);

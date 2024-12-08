@@ -216,13 +216,12 @@ func HandleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 	done := make(chan error)
 
 	go func() {
-
 		err := r.ParseMultipartForm(50 << 20) // 50MB
 		if err != nil {
 			done <- fmt.Errorf("Request size is too large")
 			return
 		}
-
+		fmt.Printf("MultipartForm: %+v\n", r.MultipartForm)
 		formFiles := r.MultipartForm.File["files"]
 		if len(formFiles) == 0 {
 			done <- fmt.Errorf("No files were uploaded")

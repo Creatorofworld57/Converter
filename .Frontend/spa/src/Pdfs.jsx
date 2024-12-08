@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useContext} from "react";
 import { useNavigate } from "react-router-dom";
 import './Styles/Playlist.css';
+import {TypeContext} from "./Context";
 
 const Pdfs = () => {
     const [pdfIds, setPdfIds] = useState([]); // Store the array of PDF IDs
     const [pdfUrls, setPdfUrls] = useState({}); // Map of ID -> Object URL for PDFs
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isGrid, setIsGrid] = useState(true); // Manage view style (list/grid)
     const navigate = useNavigate();
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
+    const [pdfNames, setPdfNames] = useState({});
+    const [pdfNamesMap, setPdfNamesMap] = useState({});
     const redirectTo = (url) => navigate(url);
-
+    const {color} = useContext(TypeContext)
     const fetchPdfIds = async () => {
         try {
             setIsLoading(true);
@@ -54,6 +57,7 @@ const Pdfs = () => {
 
     useEffect(() => {
         fetchPdfIds();
+        document.body.style.backgroundColor = color ? "#cccccc": "#353845";
     }, []);
 
     useEffect(() => {
@@ -78,10 +82,73 @@ const Pdfs = () => {
         }
     }, [pdfIds]);
 
+    const getName = async (id) => {
+
+        const response = await fetch(`${backendUrl}/api/pdf_name/${id}`, {
+            method: "GET"
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch PDF with ID: ${id}`);
+        }
+        const name = await response.text()
+        console.log(name)
+        return name
+
+
+
+    }
+    const fetchPdfNamesMap = async (pdfIds) => {
+        try {
+            const nameMap = {};
+
+            // Асинхронно запрашиваем имена для всех ID
+            await Promise.all(
+                pdfIds.map(async (id) => {
+                    const response = await fetch(`${backendUrl}/api/pdf_name/${id}`, {
+                        method: "GET",
+                    });
+
+                    if (response.ok) {
+                        const name = await response.text();
+                        nameMap[id] = name;
+                    } else {
+                        console.error(`Failed to fetch name for PDF ID: ${id}`);
+                        nameMap[id] = "Unknown Name"; // Устанавливаем значение по умолчанию
+                    }
+                })
+            );
+
+            return nameMap;
+        } catch (error) {
+            console.error("Error fetching names map:", error);
+            return {}; // Возвращаем пустую мапу в случае ошибки
+        }
+    }
+
+    useEffect(() => {
+        const fetchNames = async () => {
+            if (pdfIds.length > 0) {
+                const namesMap = await fetchPdfNamesMap(pdfIds);
+                setPdfNamesMap(namesMap);
+            }
+        };
+
+        fetchNames();
+    }, [pdfIds]); // Зависимость от изменения pdfIds
+
+
+
     return (
         <div>
             <div className="tittlePlaylist">Мои PDF документы</div>
-            <div className="menu-items">
+            <button
+                className="toggle-view"
+                onClick={() => setIsGrid(!isGrid)}
+            >
+                {isGrid ? "Показать в виде ленты" : "Показать в виде сетки"}
+            </button>
+            <div className={`menu-items ${isGrid ? "grid-view" : "list-view"}`}>
                 <ul>
                     {isLoading ? (
                         Array.from({ length: 5 }).map((_, index) => (
@@ -112,8 +179,8 @@ const Pdfs = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="playlist-container">
-                                    <span>PDF ID: {id}</span>
+                                <div className= { !isGrid?"playlist-container":"playlist-container grid"}>
+                                    <span>{pdfNamesMap[id] ||  "Загрузка имени..."}</span>
                                 </div>
                             </li>
                         ))
@@ -121,9 +188,9 @@ const Pdfs = () => {
                         <li>PDF документы не найдены</li>
                     )}
                 </ul>
-                <button className="back_up" onClick={() => redirectTo("/profile")}>
-                </button>
             </div>
+            <button className="back_up" onClick={() => redirectTo("/profile")}>
+            </button>
         </div>
     );
 };

@@ -79,11 +79,11 @@
     transition: background-color 0.3s, color 0.3s;
 }
 .Reg_button {
-    top: 20px;
-    right: 20px;
+    top: 70px;
+    left: 20px;
 }
 .All_button {
-    top: 20px;
+    top: 70px;
     right: 20px;
 }
 .Up_button{
@@ -113,19 +113,24 @@ button:hover {
 input {
     padding: 10px;
     font-size: 16px;
-}.tools__container {
+}
+.tools__container {
      display: flex;
      flex-wrap: wrap; /* Современное свойство, можно не использовать префиксы */
-     width: 1920px;
-     top: 300px;
+     width: 100%;
+     top: 22%;
      position: absolute;
-     left: 100px
+     left: 25%
  }
 
-.tools__item {
-    background: #fff;
-    flex: 0 0 calc(16.666% - 4px); /* Это сочетает flex-grow, flex-shrink и flex-basis */
+.tools__item.light {
+   background: #fff;
     border: 1px solid #f5f5fa;
+}
+.tools__item{
+    background: #171616;
+    flex: 0 0 calc(16.666% - 4px); /* Это сочетает flex-grow, flex-shrink и flex-basis */
+    border: 1px solid #171616;
     margin: 2px;
     position: relative;
     overflow: hidden;
@@ -140,24 +145,39 @@ input {
 }
 .titleForConv{
     position: absolute;
-    top: 250px;
-    left: 100px;
+    top: 16%;
+    left: 25%;
     font-size: 2rem;
+    color: #cccccc;
+}
+.img_theme{
+  position: absolute;
+    top:2%;
+    right:3%;
+}
+.img_theme.light{
 
+}
+.titleForConv.light{
+    color:black;
 }
 .tittleForTools{
     position: absolute;
-    top: 650px;
-    left: 100px;
+    top: 54%;
+    left: 25%;
     font-size: 2rem;
+    color: #cccccc
+}
+.tittleForTools.light{
+    color: black;
 }
 .tools__containerForTools{
     display: flex;
     flex-wrap: wrap; /* Современное свойство, можно не использовать префиксы */
-    width: 1920px;
-    top: 700px;
+    width: 100%;
+    top: 60%;
     position: absolute;
-    left: 100px
+    left: 25%
 }
 
 /* Для кросс-браузерной поддержки можно добавить префиксы только там, где это необходимо */

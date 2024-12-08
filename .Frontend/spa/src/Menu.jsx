@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react'
 import './Styles/Menu.css'
 import {useNavigate} from "react-router-dom";
+import {TypeContext} from "./Context";
 
 
 const Menu = ({active,setActive}) => {
@@ -11,6 +12,7 @@ const Menu = ({active,setActive}) => {
     const [isChecked, setIsChecked] = useState(false);
     const navigate=useNavigate()
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    const {color,setColorTheme} = useContext(TypeContext)
 
     const toggleToolbar = () => {
         setIsOpen(!isOpen);
@@ -21,13 +23,13 @@ const Menu = ({active,setActive}) => {
         navigate(url);
     }
     const redirectToLogout = () => {
-        window.location.replace('http://localhost:8080/api/logout');
+        window.location.replace('http://localhost:8080/logout');
     };
 
 
     useEffect(() => {
         const initialBackgroundColor = getComputedStyle(document.body).backgroundColor;
-        setIsChecked(initialBackgroundColor === 'rgb(46, 46, 46)'); // Проверка на темный цвет
+        setIsChecked(!color); // Проверка на темный цвет
         getUser();
         userInfo();
     }, []);
@@ -61,7 +63,9 @@ const Menu = ({active,setActive}) => {
 
     };
     const colorfunc=()=>{
-        document.body.backgroundColor="white";
+        document.body.style.backgroundColor = color ? "#353845": "#cccccc";
+        setColorTheme(!color)
+
     }
 
     const redirectToDelete = async () => {
@@ -84,24 +88,23 @@ const Menu = ({active,setActive}) => {
         setIsChecked(checked);
     };
     return (
-        <div className={active?'menu active':'menu'}>
+        <div className={active? !color?'menu active':'menu active light' : !color?'menu':'menu light'}>
             <div className={active?'blur active':'blur'}/>
             <div className="menu-content">
-                <ul>
+                <ul className={"ul_menu"}>
                     {user && (
                         <>
-                            <li><img id="myImage" src={`http://localhost:8080/api/images/${userImage}`} alt="Profile"/>
+                            <li className={color?"li_menu light" :"li_menu"}><img id="myImage" src={`http://localhost:8080/api/images/${userImage}`} alt="Profile"/>
                             </li>
-                            <li>Name: {user.name}</li>
-                            <li>Created: {new Date(user.created).toLocaleDateString()}</li>
-                            <li>Updated: {new Date(user.updated).toLocaleDateString()}</li>
-                            <li>Role: {user.roles}</li>
+                            <li className={color?"li_menu light" :"li_menu"}>Имя: {user.name}</li>
+                            <li className={color?"li_menu light" :"li_menu"}>Created: {new Date(user.created).toLocaleDateString()}</li>
+                            <li className={color?"li_menu light" :"li_menu"}>Updated: {new Date(user.updated).toLocaleDateString()}</li>
                         </>
                     )}
-                    <li className="delete"><a onClick={redirectToDelete}>Удалить учетную запись</a></li>
-                    <li><a onClick={() => redirectTo('/update')}>Обновить мои данные</a></li>
-                    <li className='exit'><a className="exit" onClick={redirectToLogout}>Выйти</a></li>
-                    <li>
+                    <li className="li_menu delete"><a className={"a_menu"} onClick={redirectToDelete}>Удалить учетную запись</a></li>
+                    <li className={"li_menu"} ><a onClick={() => redirectTo('/update')}>Обновить мои данные</a></li>
+                    <li className='li_menu exit'><a className={"a_menu"} onClick={redirectToLogout}>Выйти</a></li>
+                    <li className={"li_menu"}>
                         <div className="toggle-switch">
                             <input
                                 type="checkbox"

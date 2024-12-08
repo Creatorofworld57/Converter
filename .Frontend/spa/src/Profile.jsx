@@ -3,6 +3,7 @@ import './Styles/Profile.css';
 import { useNavigate } from 'react-router-dom';
 import Menu from './Menu';
 import { FaGithub, FaTelegramPlane } from 'react-icons/fa';
+import {TypeContext} from "./Context";
 
 
 
@@ -12,6 +13,7 @@ const Profile = () => {
     const [isChecked, setIsChecked] = useState(false);
     const [url1, setUrl1] = useState('');
     const [url2, setUrl2] = useState('');
+    const {color} = useContext(TypeContext)
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 
@@ -52,7 +54,7 @@ const Profile = () => {
 
 
 
-                <div className="tools__item">
+                <div className={color?"tools__item light":"tools__item"}>
                     <a href="/pdfs" title="PDF в JPG">
                         <div className="tools__item__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
@@ -75,26 +77,23 @@ const Profile = () => {
                     </a>
                 </div>
 
-            <nav>
+            <nav className={color?"nav_pro light":"nav_pro"}>
 
                 <div>
                     <div className='burger-btn' onClick={() => setMenuActive(!menuActive)}>
-                        <span className={menuActive ? 'line1 active' : 'line1'}/>
-                        <span className={menuActive ? 'line2 active' : 'line2'}/>
-                        <span className={menuActive ? 'line3 active' : 'line3'}/>
+                        <span className={menuActive ? color?'line1 active light':'line1 active' :  color?'line1 light':'line1'}/>
+                        <span className={menuActive ? color?'line2 active light':'line2 active' :  color?'line2 light':'line2'}/>
+                        <span className={menuActive ? color?'line3 active light':'line3 active' :  color?'line3 light':'line3'}/>
                     </div>
 
                 </div>
 
             </nav>
 
-            <main>
-                <div>
 
-                </div>
-            </main>
 
-            <button className="back_up" onClick={() => redirectTo('/')}></button>
+            <button className={color?"back_up light" :"back_up"} onClick={() => redirectTo('/')}></button>
+
 
             <Menu active={menuActive} setActive={setMenuActive}/>
 

@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { TypeContext } from "./Context";
+import React, {useContext, useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {TypeContext} from "./Context";
 
-export const Converter = () => {
+export const ConverterCrop = () => {
     const navigate = useNavigate();
     const [files, setFiles] = useState([]); // Хранение массива файлов
     const { type, setTypeValue } = useContext(TypeContext);
@@ -11,9 +11,11 @@ export const Converter = () => {
     const [fileName, setFileName] = useState(null); // Имя итогового файла для скачивания
     const [isWatermark, setIsWatermark] = useState(false);
     const [pdfUrls, setPdfUrls] = useState({});// Имя итогового файла для скачивания
+    const [start, setStart] = useState({});// Имя итогового файла для скачивания
+    const [end, setEnd] = useState({});// Имя итогового файла для скачивания
+    const [user, setUser] = useState({});// Имя итогового файла для скачивания
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
-    const {color} = useContext(TypeContext)
-    const [user, setUser] = useState({});
+
 
     const getUser = async () => {
         try {
@@ -37,33 +39,20 @@ export const Converter = () => {
             setUser("undefined")
         }
     };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formData = new FormData();
-        if (type === "pdfmerge") {
-            // Добавляем все файлы в FormData
-
-            files.forEach(file => {
-                formData.append("files[]", file); // Каждый файл добавляется под "files[]"
-            });
-
-        }
-        else if(type==="watermarkpdf"){
-            console.log(files.length)
-            formData.append("files",files[0])
-            formData.append("files",files[1])
-
-        }
 
 
-        else {
+
             formData.append("file", files[0]); // Берем первый файл для других типов операций
-        }
+
 
 
         try {
-            const response = await fetch(`http://localhost:8081/upload/${type}?username=${user}`, {
+            const response = await fetch(`http://localhost:8081/upload/${type}?strstart=${start}&strend=${end}&username=${user}`, {
                 method: "POST",
                 body: formData,
             });
@@ -91,6 +80,9 @@ export const Converter = () => {
             alert("Ошибка при отправке данных");
         }
     };
+    useEffect(() => {
+        getUser()
+    }, []);
 
     const downloadFile = async () => {
         try {
@@ -118,33 +110,17 @@ export const Converter = () => {
     };
 
     useEffect(() => {
-        if (type === "docxtopdf") {
-            setTittleType("docx файл");
-        } else if (type === "pdfmerge") {
-            setTittleType("pdf файлы для объединения");
+        if (type === "pdfextraction") {
+            setTittleType("pdf файл");
         }
-        else if(type==="watermarkpdf"){
-            setIsWatermark(true)
-        }
-        else if(type==="xlstopdf"){
-            setTittleType("xls файл")
-        }
-
-        else if (type==="jpgtopdf"){
-            setTittleType("jpg файл")
-        }
-
     }, [type]);
-    useEffect(() => {
-        getUser()
-    }, []);
 
     return (
         <div>
             {isLoading ? (
                     <div className="form-container">
-                        <h1 className={color?"tittle_converter light":"tittle_converter"}>Загрузка файла</h1>
-                        {!isWatermark ? (
+                        <h1>Загрузка файла</h1>
+
                             <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
                                 <div className="file-input-container">
                                     <label className="file-input-label" htmlFor="file">
@@ -159,49 +135,30 @@ export const Converter = () => {
                                         required
                                     />
                                 </div>
+                                <input
+                                    type="text"
+                                    id="start"
+                                    name="start"
+
+                                    placeholder="Введите начальную страницу"
+                                    onChange={(e) => setStart(e.target.value)}
+                                    required
+                                />
+
+                                <input
+                                    type="text"
+                                    id="end"
+                                    name="end"
+
+                                    onChange={(e) => setEnd(e.target.value)}
+                                    placeholder="Введите конечную страницу"
+                                    required
+                                />
 
                                 <button id="but" type="submit">
                                     Отправить
                                 </button>
-                            </form>) : (
-                            <div>
-                                <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
-                                    <div className="file-input-container">
-                                        <label className="file-input-label" htmlFor="file">
-                                            Выберите основной файл
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="name"
-                                            name="name"
-                                            onChange={(e) => setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
-                                            // Разрешаем загрузку нескольких файлов только для объединения
-                                            required
-                                        />
-                                    </div>
-                                    <div className="file-input-container">
-                                        <label className="file-input-label" htmlFor="file">
-                                            Выберите вотермарку
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="watermark"
-                                            name="watermark"
-                                            onChange={(e) => setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
-                                            // Разрешаем загрузку нескольких файлов только для объединения
-                                            required
-                                        />
-                                    </div>
-
-                                    <button id="but" type="submit">
-                                        Отправить
-                                    </button>
-                                </form>
-                            </div>
-
-
-                        )
-                        }
+                            </form>
 
                     </div>
                 )
@@ -223,4 +180,4 @@ export const Converter = () => {
         ;
 };
 
-export default Converter;
+export default ConverterCrop;

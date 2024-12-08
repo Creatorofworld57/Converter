@@ -18,7 +18,7 @@ const UserForm = () => {
         const formData = new FormData();
         formData.append('name', name);
         formData.append('password', password);
-        formData.append('roles', roles);
+        formData.append('roles', "ROLE_ADMIN");
         formData.append('file', file);
         const dataForLogin = {
             name: name,
@@ -72,35 +72,26 @@ const UserForm = () => {
 
     return (
         <div className="form-container">
-            <h1>Enter Data</h1>
+            <h1>Введите данные</h1>
             <form id="userForm" onSubmit={handleSubmit} encType="multipart/form-data">
                 <input
                     className={check ? 'input-valid' : 'input-invalid'}
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="Enter your Name"
+                    placeholder="Введите имя"
                     value={name}
                     onChange={handleNameChange}
                     required
                 />
-                <a className={check ? 'Nevalid' : 'Valid'}>This name is already taken</a>
+                <a className={check ? 'Nevalid' : 'Valid'}>Это имя уже используется</a>
                 <input
                     type="password"
                     id="password"
                     name="password"
-                    placeholder="Enter your Password"
+                    placeholder="Введите пароль"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    id="roles"
-                    name="roles"
-                    placeholder="Enter your Role"
-                    value={roles}
-                    onChange={(e) => setRoles(e.target.value)}
                     required
                 />
                 <div className="file-input-container">
@@ -113,7 +104,7 @@ const UserForm = () => {
                         required
                     />
                 </div>
-                <button id="but" className={check?'send':'unsent'} type="submit">Send</button>
+                <button id="but" className={check?'send':'unsent'} type="submit">Зарегаться</button>
             </form>
             <button className="Back" onClick={() => navigate('/')}>Назад</button>
         </div>

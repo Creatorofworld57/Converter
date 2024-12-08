@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -75,14 +76,14 @@ func convertWatermarkPdf(mainPdfPath, watermarkPdfPath, outputPdfPath string) er
 	return nil
 }
 
-func sendPdfToServer(pdfPath, pdfFileName string) error {
+func sendPdfToServer(pdfPath, pdfFileName, username string) error {
 	pdfFile, err := os.Open(pdfPath)
 	if err != nil {
 		return fmt.Errorf("could not open PDF file: %v", err)
 	}
 	defer pdfFile.Close()
 
-	requestUrl := fmt.Sprintf("http://localhost:8080/api/pdf?filename=%s", pdfFileName)
+	requestUrl := fmt.Sprintf("http://localhost:8080/api/pdf?filename=%s&username=%s", pdfFileName, username)
 	req, err := http.NewRequest("POST", requestUrl, pdfFile)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %v", err)
@@ -102,11 +103,114 @@ func sendPdfToServer(pdfPath, pdfFileName string) error {
 	return nil
 }
 
+func handleUploadPdfExtraction(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	strStart := r.URL.Query().Get("strstart")
+	strEnd := r.URL.Query().Get("strend")
+	userName := r.URL.Query().Get("username")
+
+	if strStart == "" || strEnd == "" || userName == "" {
+		http.Error(w, "Missing required parameters: 'strstart' / 'strend' / 'username' ", http.StatusBadRequest)
+		return
+	}
+
+	start, err := strconv.Atoi(strStart)
+	if err != nil {
+		http.Error(w, "Invalid 'strstart' parameter", http.StatusBadRequest)
+		return
+	}
+
+	end, err := strconv.Atoi(strEnd)
+	if err != nil {
+		http.Error(w, "Invalid 'strend' parameter", http.StatusBadRequest)
+		return
+	}
+
+	var outputPdfName string
+	done := make(chan error)
+
+	go func() {
+		defer close(done)
+
+		err := r.ParseMultipartForm(10 << 20) // 10MB
+		if err != nil {
+			done <- fmt.Errorf("File is too big")
+			return
+		}
+
+		file, handler, err := r.FormFile("file")
+		if err != nil {
+			done <- fmt.Errorf("Error retrieving file: %v", err)
+			return
+		}
+		defer file.Close()
+
+		originalFileName := handler.Filename
+		originalPdfPath := filepath.Join(".", originalFileName)
+
+		dst, err := os.Create(originalPdfPath)
+		if err != nil {
+			done <- fmt.Errorf("Unable to save the file: %v", err)
+			return
+		}
+
+		if _, err = io.Copy(dst, file); err != nil {
+			done <- fmt.Errorf("Unable to save the file: %v", err)
+			return
+		}
+		dst.Close()
+
+		outputPdfName = nameFileTime("_extracted") + ".pdf"
+		outputPdfPath := filepath.Join(".", outputPdfName)
+
+		cmd := exec.Command("pdftk", originalPdfPath, "cat", fmt.Sprintf("%d-%d", start, end), "output", outputPdfPath)
+		err = cmd.Run()
+		if err != nil {
+			done <- fmt.Errorf("Failed to extract pages: %v", err)
+			return
+		}
+
+		err = sendPdfToServer(outputPdfPath, outputPdfName, userName)
+		if err != nil {
+			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
+			return
+		}
+
+		if err = os.Remove(originalPdfPath); err != nil {
+			done <- fmt.Errorf("Failed to delete original PDF file: %v", err)
+			return
+		}
+
+		if err = os.Remove(outputPdfPath); err != nil {
+			done <- fmt.Errorf("Failed to delete extracted PDF file: %v", err)
+			return
+		}
+
+		done <- nil
+	}()
+
+	err = <-done
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "File '%s' created successfully", outputPdfName)
+}
+
 func handleUploadPdfWatermark(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	userName := r.URL.Query().Get("username")
 
 	var outputPdfName string
 	done := make(chan error)
@@ -176,7 +280,7 @@ func handleUploadPdfWatermark(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = sendPdfToServer(outputPdfPath, outputPdfName)
+		err = sendPdfToServer(outputPdfPath, outputPdfName, userName)
 		if err != nil {
 			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
 			return
@@ -213,6 +317,8 @@ func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userName := r.URL.Query().Get("username")
+
 	var outputPdfName string
 	done := make(chan error)
 
@@ -224,7 +330,7 @@ func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		formFiles := r.MultipartForm.File["files[]"]
+		formFiles := r.MultipartForm.File["files"]
 		if len(formFiles) == 0 {
 			done <- fmt.Errorf("No files were uploaded")
 			return
@@ -267,7 +373,7 @@ func handleUploadPdfMerge(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = sendPdfToServer(outputPdfPath, outputPdfName)
+		err = sendPdfToServer(outputPdfPath, outputPdfName, userName)
 		if err != nil {
 			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
 			return
@@ -300,8 +406,11 @@ func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userName := r.URL.Query().Get("username")
+
 	var pdfFileName string
 	done := make(chan error)
+
 	go func() {
 		defer close(done)
 
@@ -342,7 +451,7 @@ func handleUploadFileXlsToPdf(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = sendPdfToServer(pdfFilePath, pdfFileName)
+		err = sendPdfToServer(pdfFilePath, pdfFileName, userName)
 		if err != nil {
 			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
 			return
@@ -371,6 +480,8 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	userName := r.URL.Query().Get("username")
 
 	var pdfFileName string
 	done := make(chan error)
@@ -415,7 +526,7 @@ func handleUploadFileJpgToPdf(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = sendPdfToServer(pdfFilePath, pdfFileName)
+		err = sendPdfToServer(pdfFilePath, pdfFileName, userName)
 		if err != nil {
 			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
 			return
@@ -447,6 +558,8 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	userName := r.URL.Query().Get("username")
 
 	var pdfFileName string
 	done := make(chan error)
@@ -491,7 +604,7 @@ func handleUploadFileDocxToPdf(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = sendPdfToServer(pdfFilePath, pdfFileName)
+		err = sendPdfToServer(pdfFilePath, pdfFileName, userName)
 		if err != nil {
 			done <- fmt.Errorf("Failed to send PDF to server: %v", err)
 			return
@@ -542,6 +655,7 @@ func main() {
 	http.HandleFunc("/upload/xlstopdf", handleUploadFileXlsToPdf)
 	http.HandleFunc("/upload/pdfmerge", handleUploadPdfMerge)
 	http.HandleFunc("/upload/watermarkpdf", handleUploadPdfWatermark)
+	http.HandleFunc("/upload/pdfextraction", handleUploadPdfExtraction)
 
 	fmt.Println("Server listening on port 8081...")
 	err := http.ListenAndServe(":8081", corsMiddleware(http.DefaultServeMux))

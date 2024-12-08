@@ -9,7 +9,7 @@ const Welcome = () => {
     const [isButtonVisible, setButtonVisible] = useState(true);
     const [inputValue, setInputValue] = useState('');
     const [json, setJson] = useState('')
-    const {type,setTypeValue} = useContext(TypeContext)
+    const {type,setTypeValue,color,setColorTheme} = useContext(TypeContext)
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
@@ -44,10 +44,18 @@ const Welcome = () => {
 
     const redirectTo =  (typeOf) => {
         setTypeValue(typeOf);
-        setTimeout(() => {
-            // Второе действие: переключаем состояние создания нового чата
-            navigate("/converter")
-        }, 200); // Задержка в миллисекундах (1000ms = 1 секунда)
+        if(typeOf==="pdfextraction"){
+            setTimeout(() => {
+                // Второе действие: переключаем состояние создания нового чата
+                navigate("/converter_crop")
+            }, 200); // Задержка в миллисекундах (1000ms = 1 секунда)
+        }
+        else {
+            setTimeout(() => {
+                // Второе действие: переключаем состояние создания нового чата
+                navigate("/converter")
+            }, 200);
+        }// Задержка в миллисекундах (1000ms = 1 секунда)
         console.log(type)
     };
 
@@ -63,17 +71,23 @@ const Welcome = () => {
     const handleInputChange = (event) => {
         setInputValue(event.target.value);
     };
+    const setTheme = () =>{
+        setColorTheme(!color)
+        document.body.style.backgroundColor = color ? "#353845": "#cccccc";
+    }
 
     return (
         <div className="container">
             {isButtonVisible && (
                 <button className="Reg_button" onClick={redirectToLogin}>
-                    Sign in or sign up
+                    Войти или зарегаться
                 </button>
             )}
-            <div className={"titleForConv"}>Конвертация</div>
+            <img className={"img_theme"} onClick={()=>setTheme()} src={color?"https://react-news-delta.vercel.app/assets/light-6ca11da7.png":"https://react-news-delta.vercel.app/assets/dark-b70e412a.png" } width="30" alt="theme"/>
+
+            <div className={color ? "titleForConv light" : "titleForConv"}>Конвертация</div>
             <div className="tools__container">
-                <div className="tools__item" onClick={() => redirectTo("docxtopdf")}>
+                <div className={color ? "tools__item light" : "tools__item"} onClick={() => redirectTo("docxtopdf")}>
                     <a onClick={() => redirectTo("pdfToDoc")}>
                         <div className="tools__item__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
@@ -99,8 +113,8 @@ const Welcome = () => {
                         </div>
                     </a>
                 </div>
-                <div className="tools__item" onClick={() => redirectTo("jpgtopdf")}>
-                    <a  title="JPG в PDF" >
+                <div className={color ? "tools__item light" : "tools__item"} onClick={() => redirectTo("jpgtopdf")}>
+                    <a title="JPG в PDF">
                         <div className="tools__item__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
                                 <path
@@ -125,7 +139,7 @@ const Welcome = () => {
                         </div>
                     </a>
                 </div>
-                <div className="tools__item" onClick={() => redirectTo("xlstopdf")}>
+                <div className={color ? "tools__item light" : "tools__item"} onClick={() => redirectTo("xlstopdf")}>
                     <a title="Excel в PDF">
                         <div className="tools__item__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
@@ -153,10 +167,10 @@ const Welcome = () => {
                     </a>
                 </div>
             </div>
-            <div className={"tittleForTools"}>Инструменты</div>
+            <div className={color ? "tittleForTools light" : "tittleForTools"}>Инструменты</div>
             <div className="tools__containerForTools">
-                <div className="tools__item" onClick={() => redirectTo("pdfmerge")}>
-                    <a  title="Объединить PDF">
+                <div className={color ? "tools__item light" : "tools__item"} onClick={() => redirectTo("pdfmerge")}>
+                    <a title="Объединить PDF">
                         <div className="tools__item__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
                                 <g fill="rgb(93.333333%,42.352941%,30.196078%)" fill-rule="evenodd">
@@ -177,7 +191,7 @@ const Welcome = () => {
                         </div>
                     </a>
                 </div>
-                <div className="tools__item" onClick={() => redirectTo("watermarkpdf")}>
+                <div className={color ? "tools__item light" : "tools__item"} onClick={() => redirectTo("watermarkpdf")}>
                     <a title="Водяной знак">
                         <div className="tools__item__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
@@ -193,6 +207,29 @@ const Welcome = () => {
                         <div className="tools__item__content">
                             <p>Выберите изображение или текст, которые вы хотите вставить в ваш PDF. Выберите положение,
                                 прозрачность и шрифт.</p>
+                        </div>
+                    </a>
+                </div>
+                <div className={color ? "tools__item light" : "tools__item"}
+                     onClick={() => redirectTo("pdfextraction")}>
+                    <a title="Разделить PDF">
+                        <div className="tools__item__icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 50 50">
+                                <g fill="rgb(93.333333%,42.352941%,30.196078%)" fill-rule="evenodd">
+                                    <path
+                                        d="M5.488.363h21.75c1.78 0 2.43.184 3.082.535a3.66 3.66 0 0 1 1.512 1.512c.348.652.535 1.297.535 3.082v21.746c0 1.78-.187 2.43-.535 3.082a3.66 3.66 0 0 1-1.512 1.512c-.652.348-1.3.535-3.082.535H5.488c-1.78 0-2.43-.187-3.082-.535A3.66 3.66 0 0 1 .895 30.32c-.348-.652-.535-1.3-.535-3.082V5.488c0-1.78.188-2.43.535-3.082A3.71 3.71 0 0 1 2.406.895c.652-.348 1.3-.53 3.082-.53zm0 0"></path>
+                                    <path
+                                        d="M44.563 49.69H22.816c-1.78 0-2.43-.184-3.082-.535-.645-.34-1.172-.867-1.512-1.512-.348-.652-.535-1.297-.535-3.082V22.816c0-1.78.184-2.43.535-3.082.34-.645.867-1.172 1.512-1.512.652-.348 1.3-.535 3.082-.535h21.746c1.785 0 2.43.188 3.082.535.645.34 1.172.867 1.512 1.512.352.652.535 1.3.535 3.082v21.746c0 1.785-.184 2.43-.535 3.082-.34.645-.867 1.172-1.512 1.512-.652.352-1.297.535-3.082.535zm0 0"></path>
+                                </g>
+                                <path
+                                    d="M9.22 15.87c.484 0 .875-.387.875-.86v-3.8l7.195 7.102a.88.88 0 0 0 1.234 0 .85.85 0 0 0 0-1.215L11.328 10h3.875c.484 0 .875-.387.875-.86s-.4-.86-.875-.86H9.22a.88.88 0 0 0-.332.066.86.86 0 0 0-.539.793v5.875c0 .473.4.86.87.86zm31.793 18.2c-.484 0-.875.383-.875.855v3.8L32.94 31.63a.88.88 0 0 0-1.234 0c-.164.156-.258.375-.258.605a.85.85 0 0 0 .258.605l7.2 7.1H35.02c-.48 0-.87.387-.87.86a.86.86 0 0 0 .871.855H41a.88.88 0 0 0 .805-.527.86.86 0 0 0 .066-.328v-5.883a.87.87 0 0 0-.87-.855zm-18.78-5.187c-.355.352-.93.352-1.285 0s-.355-.934 0-1.3a.91.91 0 0 1 1.285 0c.355.352.355.934 0 1.3zm3.365-3.367a.91.91 0 0 1-1.285 0 .91.91 0 0 1 0-1.285c.352-.352.93-.352 1.285 0a.91.91 0 0 1 0 1.285zm3.36-3.364a.91.91 0 0 1-1.285 0 .91.91 0 0 1 0-1.285.91.91 0 0 1 1.285 0 .91.91 0 0 1 0 1.285zm0 0"
+                                    fill="rgb(100%,100%,100%)"></path>
+                            </svg>
+                        </div>
+                        <h3>Обрезать PDF</h3>
+                        <div className="tools__item__content">
+                            <p>Выбирайте диапазон страниц, одну страницу или преобразовывайте каждую страницу документа
+                                в независимый PDF-файл.</p>
                         </div>
                     </a>
                 </div>

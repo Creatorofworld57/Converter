@@ -1,3 +1,12 @@
 body{
-    background-color: lightgray;
+    background-color: #353845;
+}
+.element.style {
+    background-color: #04091a;
+}
+.tittle_converter{
+    color:white;
+}
+.tittle_converter.light{
+    color:black;
 }

@@ -8,13 +8,22 @@
     align-items: flex-end;
     z-index: 1000;
     height: 100%;
-    transition: all 1s;
     transform: translateX(130%);
     background-color: black;
-   /* Добавьте это свойство для закругленных краев */
+    /* Плавный переход только для transform */
+    transition: transform 1s ease;
 }
+.menu.light{
+    background-color: white;
+}
+
 .menu.active {
     transform: translateX(0);
+    background-color: black; /* Цвет меняется мгновенно */
+}
+.menu.active.light {
+    transform: translateX(0);
+    background-color: white; /* Цвет меняется мгновенно */
 }
 
 /* Контент меню */
@@ -26,8 +35,8 @@
     padding-top: 50px;
     box-sizing: border-box; /* Для учета padding */
     color: black;
-    transition:all 1s;
-    transition-duration: 2s;
+    /* Плавный переход только для цвета текста */
+    transition: color 0.3s ease;
 }
 
 /* Размытие фона */
@@ -36,62 +45,59 @@
     height: 100vh;
     backdrop-filter: blur(2px);
     position: absolute;
-    right:245px;
-    transition:all 1s;
-
+    right: 245px;
+    transition: width 0.3s ease, height 0.3s ease; /* Плавный переход только для размеров */
 }
-.blur{
+.blur {
     width: 0;
     height: 0;
     position: absolute;
-    right:100px;
-    transition: all 1s;
+    right: 100px;
+    transition: width 0.3s ease, height 0.3s ease;
 }
 
-
-ul {
+/* Стили для списка меню */
+.ul_menu {
     margin-left: 15px;
     text-align: center;
     list-style: none; /* Убираем маркеры списка */
     padding: 0;
 }
 
-li {
-    color: white;
+.li_menu {
+    color: white; /* Цвет текста */
     display: flex;
     align-items: center;
     font-size: 1.2rem;
     margin-bottom: 20px;
-    transition: color 0.3s ease, transform 0.3s ease; /* Плавный переход для эффектов */
+    transition: transform 0.3s ease; /* Плавный переход только для transform */
+}
+.li_menu.light{
+    color: black;
 }
 
-li:hover {
-
+.li_menu:hover .li_menu.delete:hover {
     transform: scale(1.1); /* Увеличение при наведении */
 }
 
-li::before {
+.li_menu::before {
     content: "•"; /* Добавляем маркер перед каждым элементом */
     color: white;
     margin-right: 20px;
     font-size: 1.5rem;
 }
 
-ul li a {
-    color: inherit; /* Наследуем цвет */
+.li_menu.delete, .li_menu.exit {
+    color: red; /* Цвет меняется мгновенно */
+    transition: none; /* Убираем все анимации для этих элементов */
+}
+
+.a_menu {
+    color: red; /* Цвет ссылки */
     text-decoration: none; /* Убираем подчеркивание */
-    transition: color 0.3s ease; /* Плавный переход цвета */
 }
 
-
-.exit,.delete{
-    color:red;
-}
-.exit,.delete:hover{
-    color: red;
-
-}
-
+/* Переключатель темы */
 .toggle-switch {
     display: flex;
     align-items: center;
@@ -112,7 +118,7 @@ ul li a {
     background-color: #ccc;
     border-radius: 34px;
     position: relative;
-    transition: background-color 0.3s;
+    /* Убираем transition для мгновенной смены цвета */
 }
 
 /* Стиль для ползунка переключателя */
@@ -125,15 +131,14 @@ ul li a {
     height: 30px;
     background-color: white;
     border-radius: 50%;
-    transition: transform 0.3s;
+    transition: transform 0.3s; /* Анимация только для движения ползунка */
 }
 
 /* Состояние переключателя в положении "включено" */
 .toggle-input:checked + .toggle-label {
-    background-color: #2e2e2e;
+    background-color: #2e2e2e; /* Цвет переключается мгновенно */
 }
 
-/* Ползунок переключателя при активном состоянии */
 .toggle-input:checked + .toggle-label::before {
     transform: translateX(26px);
 }

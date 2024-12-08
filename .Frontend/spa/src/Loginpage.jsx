@@ -28,13 +28,13 @@ const Loginpage = () => {
                   alt="GitHub Logo"
                   className="logo"
               />
-              <h1>Sign in to Base</h1>
+              <h1>Вход в систему</h1>
 
               <input
                   type="text"
                   id="name"
                   name="name"
-                  placeholder="Enter your Name"
+                  placeholder="Введите имя"
                   required
               />
 
@@ -42,21 +42,21 @@ const Loginpage = () => {
                   type="password"
                   id="password"
                   name="password"
-                  placeholder="Enter your password"
+                  placeholder="Введите пароль"
                   required
               />
               <div className="imgEntry"><a  href="http://localhost:8080/oauth2/authorization/github" target="_blank"
                                            rel="noopener noreferrer">
-                  Continue with     <FaGithub/>
+                  Продолжить с      <FaGithub/>
               </a></div>
 
               <button className="button" type="submit">
-                  Login
+                 Войти
               </button>
           </div>
       </form>
 
-        <a className="reg_ref" onClick={() => redirectTo('/reg')}>I haven't account</a>
+        <a className="reg_ref" onClick={() => redirectTo('/reg')}>У меня нет аккаунта</a>
     </div>
   );
 };

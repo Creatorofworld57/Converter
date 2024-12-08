@@ -12,7 +12,7 @@ import PrivateRoute from './PrivateRoutes/PrivateRoute';
 import Converter from "./Converter";
 import Context from "./Context";
 import Pdfs from "./Pdfs";
-
+import ConverterCrop from "./ConverterCrop";
 
 const App = () => {
     return (
@@ -30,6 +30,7 @@ const App = () => {
                         <Route path ="/pdfs" element={<Pdfs/>}/>
                     </Route>
                     <Route path={"/converter"} element={<Converter/>}/>
+                    <Route path={"/converter_crop"} element={<ConverterCrop/>}/>
                     <Route path="/reg" element={<UserForm />} />
                 </Routes>
             </Router>

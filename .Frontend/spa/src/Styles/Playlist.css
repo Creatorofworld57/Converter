@@ -1,3 +1,39 @@
+.menu-items.list-view ul {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-items.grid-view ul {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.pdf-preview-container {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.toggle-view {
+    position: absolute;
+    top:15%;
+    right:5%;
+    margin: 15px 0 0 15px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.toggle-view:hover {
+    background-color: #0056b3;
+}
 
 
 .scatteringPlaylist {
@@ -40,10 +76,10 @@
 }
 .menu-items{
     position: absolute;
-    width: 50%;
+    width: 100%;
     min-height: 30%;
     overflow: hidden;
-    background-color: black;
+
     color: white;
     margin-top: 10px;
     z-index: 10; /* Передний план для меню */
@@ -69,7 +105,18 @@
     flex-direction: column;
     position: relative;
     left:1%;
-
+}
+.playlist-container.grid {
+    display: flex; /* Используем flex для управления позицией содержимого */
+    justify-content: center; /* Выравниваем по центру */
+    align-items: center; /* Выравниваем содержимое по вертикали */
+    position: absolute; /* Устанавливаем абсолютное позиционирование */
+    bottom: 0; /* Размещаем контейнер внизу */
+    width: 100%; /* Занимаем всю ширину родительского элемента */
+    background-color: rgba(0, 0, 0, 0.8); /* Опционально: добавляем фон */
+    color: white; /* Цвет текста */
+    padding: 10px; /* Добавляем отступы */
+    box-sizing: border-box; /* Учитываем padding в ширину/высоту */
 }
 
 .name-playlist {

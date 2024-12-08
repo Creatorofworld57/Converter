@@ -14,7 +14,7 @@ export const TypeContext = React.createContext({
 
 const Context = (props) => {
     // Состояния для разных переменных
-    const [color, setColor] = useState(true); // Цвет темы
+    const [color, setColor] = useState(false); // Цвет темы
     const [type, setType] = useState("pdf"); // ID
     const [chatId, setChatId] = useState(0); // Задать начальное значение как строку
     const [idUpdated, setIdUpdated] = useState(0); // Задать начальное значение как строку

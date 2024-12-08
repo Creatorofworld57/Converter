@@ -23,6 +23,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+
 	http.HandleFunc("/upload/docxtopdf", web.HandleUploadFileDocxToPdf)
 	http.HandleFunc("/upload/jpgtopdf", web.HandleUploadFileJpgToPdf)
 	http.HandleFunc("/upload/xlstopdf", web.HandleUploadFileXlsToPdf)

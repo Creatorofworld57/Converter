@@ -3,11 +3,8 @@ package ex.springsecurity_1805.services;
 import ex.springsecurity_1805.Models.PDF;
 import ex.springsecurity_1805.Repositories.PdfRepository;
 import ex.springsecurity_1805.Repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.pdfbox.io.RandomAccessStreamCache;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,19 +19,27 @@ import java.util.Optional;
 public class ServiceForPdf {
     private final PdfRepository pdfRepository;
     private final UserRepository userRepository;
+    @Transactional
     public List<Long> getPdfs(UserDetails userDetails){
         Long id = userRepository.findByName(userDetails.getUsername()).get().getId();
-        return pdfRepository.findPDFByUserId(id);
+        return pdfRepository.findPdfIdsByUserId(id);
     }
 
     public PDF getPdf(Long id){
         Optional<PDF> opt = pdfRepository.findById(id);
         return opt.orElse(null);
     }
+    @Transactional
     public PDF getPdfbyName(String name){
         Optional<PDF> opt = pdfRepository.findPDFByOriginalFileName(name);
         return opt.orElse(null);
     }
+    @Transactional
+    public PDF getPdfbyId(Long id){
+        Optional<PDF> opt = pdfRepository.findPDFById(id);
+        return opt.orElse(null);
+    }
+
 
     public void savePdf(MultipartFile file,UserDetails userDetails) throws IOException {
         PDF pdf =new PDF();
@@ -46,9 +51,12 @@ public class ServiceForPdf {
         pdf.setUser(userRepository.findByName(userDetails.getUsername()).get());
         pdfRepository.save(pdf);
     }
-    public void savePdfAnonimus(byte[] massa,String name){
+    public void savePdfAnonimus(byte[] massa,String name,String username){
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(massa);
         PDF pdf =new PDF();
+        if(userRepository.findByName(username).isPresent()){
+            pdf.setUser(userRepository.findByName(username).get());
+        }
         pdf.setName(name);
         pdf.setBytes(massa);
         pdf.setOriginalFileName(name);

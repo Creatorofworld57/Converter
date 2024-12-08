@@ -1,7 +1,7 @@
 package ex.springsecurity_1805.Controllers;
 
 
-import com.fasterxml.jackson.annotation.JsonView;
+
 import ex.springsecurity_1805.Models.*;
 
 import ex.springsecurity_1805.Repositories.UserRepository;
@@ -9,8 +9,7 @@ import ex.springsecurity_1805.services.ServiceApp;
 import ex.springsecurity_1805.services.UserDEtailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.MediaType;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -158,5 +157,13 @@ public class RestController {
         return "foto";
     }
 
+    @GetMapping("/get_user")
+    public String getUser(@AuthenticationPrincipal UserDEtailsService userDEtailsService){
+        String user = rep.findByName(userDEtailsService.getUsername()).get().getName();
+        Name name = new Name();
+        name.setName(user);
+        return user;
+        //String.format("{\"name\": \"%s\"}", user);
+    }
 
 }

@@ -35,9 +35,6 @@ public class Configuration1{
 
     @Bean
     public UserDetailsService userDetailsService(){
-       /* UserDetails admin0 = User.builder().username("admin0").password(encoder.encode("52")).roles("ADMIN").build();
-        UserDetails admin1 = User.builder().username("admin1").password(encoder.encode("703.747")).roles("USER").build();
-        UserDetails admin2 = User.builder().username("admin2").password(encoder.encode("18")).roles("USER").build();*/
      return new MyUserDetailsService(repository);
     }
     private final SameSiteCookieFilter sameSiteCookieFilter;
@@ -52,11 +49,11 @@ public class Configuration1{
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("api/login", "/api/audio/**", "/api/audioName/**", "api/authorization", "/api/checking",
-                                "/api/uploadTrailer", "login/oauth2/authorization/github",
-                                "/login/oauth2/git", "/login/oauth2/code/github", "/api/audioCount",
-                                "/api/user/withGithub/{id}", "/api/searchOfTrack/{name}",
-                                "/api/background/**", "/api/nextAudios","/api/wel","/api/pdf","/api/pdf/**","/api/pdf/**").permitAll()
+                        .requestMatchers("api/login", "api/authorization", "/api/checking",
+                                 "login/oauth2/authorization/github",
+                                "/login/oauth2/git", "/login/oauth2/code/github",
+                                "/api/user/withGithub/{id}",
+                                 "/api/wel","/api/pdf","/api/pdf/**","/api/pdfUser/**","/api/pdf_name/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()// Разрешить доступ без аутентификации
                         .requestMatchers("/newUser").anonymous() // Доступно только анонимным пользователям
                         .requestMatchers("/api/**").authenticated()
@@ -69,7 +66,7 @@ public class Configuration1{
 
                         .defaultSuccessUrl(String.format("%s/home",url),true)
 
-                        .defaultSuccessUrl("https://localhost:3000/")
+                        .defaultSuccessUrl(url)
 
                         // URL после успешного логина
                         .failureUrl(String.format("%s/login",url))
@@ -99,32 +96,6 @@ public class Configuration1{
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
-   /* @Bean
-    public FilterRegistrationBean<SameSiteFilter> sameSiteFilter() {
-        FilterRegistrationBean<SameSiteFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new SameSiteFilter());
-        registrationBean.addUrlPatterns("/*");
-        return registrationBean;
-    }*/
-
-
-
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowedOrigins(List.of("http//localhost:3000"));
-//        config.setAllowedHeaders(List.of("Access-Control-Allow-Origin"));
-//        config.setAllowedMethods(List.of("*"));
-//        config.setAllowCredentials(true);
-//
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", config);
-//
-//        return source;
-//    }
 
 
 }
